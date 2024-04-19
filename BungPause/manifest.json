@@ -7,6 +7,7 @@
   "description": "",
   "gameVersion": "1.34.2",
   "dependsOn": {
-    "BSIPA": "^4.2.0"
+    "BSIPA": "^4.2.0",
+    "SiraUtil": "^3.1.6"
   }
 }
