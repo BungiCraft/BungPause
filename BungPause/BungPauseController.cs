@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
+using SiraUtil.Logging;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.XR;
+using Zenject;
 
 namespace BungPause
 {
@@ -15,25 +12,30 @@ namespace BungPause
     /// Monobehaviours (scripts) are added to GameObjects.
     /// For a full list of Messages a Monobehaviour can receive from the game, see https://docs.unity3d.com/ScriptReference/MonoBehaviour.html.
     /// </summary>
-    public class BungPauseController : MonoBehaviour
+    public class BungPauseController : IInitializable, IDisposable, ITickable
     {
-        public static BungPauseController Instance { get; private set; }
-        //private static PauseController pauseController = new PauseController();
-        private static InputDevice rightController = new InputDevice();
+        private bool _lastButtonState;
+        private bool _paused;
+        [Inject] private PauseController _pauseController;
+        [Inject] private PauseMenuManager _pauseMenuManager;
+        [Inject] private SiraLog _log;
+        [Inject] private static InputDevice _rightController;
 
-        private static InputDevice GetInputDevice()
+        public BungPauseController(PauseController pauseController, PauseMenuManager pauseMenu, SiraLog log)
         {
-            List<InputDevice> inputDevices = new List<InputDevice>();
-            InputDeviceCharacteristics desiredCharacteristics = InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right | InputDeviceCharacteristics.Controller;
+            _log = log;
+            _log.Debug($"Initializing {Assembly.GetExecutingAssembly().GetName().Name}");
+            _pauseController = pauseController;
+            _pauseMenuManager = pauseMenu;
+        }
+
+        private InputDevice GetInputDevice()
+        {
+            var inputDevices = new List<InputDevice>();
+            var desiredCharacteristics = InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right | InputDeviceCharacteristics.Controller;
             InputDevices.GetDevicesWithCharacteristics(desiredCharacteristics, inputDevices);
-            if (inputDevices.Count > 0)
-            {
-                return inputDevices[0];
-            }
-            else
-            {
-                return new InputDevice();
-            }
+            _log.Debug($"Found controller characteristic: {desiredCharacteristics} with count: {inputDevices.Count}");
+            return inputDevices.Count > 0 ? inputDevices[0] : new InputDevice();
         }
 
         // These methods are automatically called by Unity, you should remove any you aren't using.
@@ -41,67 +43,54 @@ namespace BungPause
         /// <summary>
         /// Only ever called once, mainly used to initialize variables.
         /// </summary>
-        private void Awake()
+        public void Initialize()
         {
-            // For this particular MonoBehaviour, we only want one instance to exist at any time, so store a reference to it in a static property
-            //   and destroy any that are created while one already exists.
-            if (Instance != null)
-            {
-                Plugin.Log?.Warn($"Instance of {GetType().Name} already exists, destroying.");
-                GameObject.DestroyImmediate(this);
-                return;
-            }
-            GameObject.DontDestroyOnLoad(this); // Don't destroy this object on scene changes
-            Instance = this;
-            Plugin.Log?.Debug($"{name}: Awake()");
+            _pauseMenuManager?.CancelInvoke();
         }
 
         /// <summary>
         /// Called every frame if the script is enabled.
         /// </summary>
-        private bool lastButtonState = false;
-        private bool paused = false;
         
-        private void Update()
+        public void Tick()
         {
-            if (rightController.isValid == true)
-            {
-                if (rightController.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool triggerValue) && triggerValue && triggerValue != lastButtonState)
+            _log.Debug("why doe smodding suck");
+            if (_rightController.isValid)
+            { 
+                _log.Debug($"{_rightController} was valid.");
+                if (_rightController.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out var triggerValue) && triggerValue && triggerValue != _lastButtonState)
                 {
-                    PauseController pauseController = FindObjectOfType<PauseController>();
-                    PauseMenuManager pauseMenuManager = FindObjectOfType<PauseMenuManager>();
-                    pauseMenuManager?.CancelInvoke();
-                    if (paused == false)
-                    {
-                        paused = true;
-                        lastButtonState = triggerValue;
-                        pauseController?.Pause();
-                    } else if (paused == true)
-                    {
-                        paused = false;
-                        pauseMenuManager?.Invoke("ContinueButtonPressed", 0.0f);
-                        
+                    switch (_paused)
+                    { 
+                        case false:
+                            _log.Debug($"case was {_paused}");
+                            _paused = true;
+                            _lastButtonState = triggerValue;
+                            _pauseController?.Pause();
+                            break;
+                        case true:
+                            _log.Debug($"case was {_paused}");
+                            _paused = false;
+                            _pauseMenuManager?.Invoke("ContinueButtonPressed", 0f);
+                            break;
                     }
                 } else
                 {
-                    lastButtonState = triggerValue;
+                    _lastButtonState = triggerValue;
                 }
             } else
             {
-                rightController = GetInputDevice();
-                Console.WriteLine(rightController.name);
+                _rightController = GetInputDevice();
+                _log.Debug(_rightController.name);
             }
         }
 
         /// <summary>
         /// Called when the script is being destroyed.
         /// </summary>
-        private void OnDestroy()
+        public void Dispose()
         {
-            Plugin.Log?.Debug($"{name}: OnDestroy()");
-            if (Instance == this)
-                Instance = null; // This MonoBehaviour is being destroyed, so set the static instance property to null.
-
+            _log.Info("get rek'd lol");
         }
         #endregion
     }
