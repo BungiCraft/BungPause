@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BungPause", "BungPause\BungPause.csproj", "{B3EDFD26-A8AA-4383-8055-64329BAA1214}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B3EDFD26-A8AA-4383-8055-64329BAA1214}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3EDFD26-A8AA-4383-8055-64329BAA1214}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3EDFD26-A8AA-4383-8055-64329BAA1214}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3EDFD26-A8AA-4383-8055-64329BAA1214}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DCE3C412-AD9A-498F-AAAE-05562127D702}
+	EndGlobalSection
+EndGlobal
