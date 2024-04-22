@@ -24,7 +24,7 @@ namespace BungPause
         public BungPauseController(PauseController pauseController, PauseMenuManager pauseMenu, SiraLog log)
         {
             _log = log;
-            _log.Debug($"Initializing {Assembly.GetExecutingAssembly().GetName().Name}");
+            //_log.Debug($"Initializing {Assembly.GetExecutingAssembly().GetName().Name}");
             _pauseController = pauseController;
             _pauseMenuManager = pauseMenu;
         }
@@ -34,7 +34,7 @@ namespace BungPause
             var inputDevices = new List<InputDevice>();
             var desiredCharacteristics = InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right | InputDeviceCharacteristics.Controller;
             InputDevices.GetDevicesWithCharacteristics(desiredCharacteristics, inputDevices);
-            _log.Debug($"Found controller characteristic: {desiredCharacteristics} with count: {inputDevices.Count}");
+            //_log.Debug($"Found controller characteristic: {desiredCharacteristics} with count: {inputDevices.Count}");
             return inputDevices.Count > 0 ? inputDevices[0] : new InputDevice();
         }
 
@@ -54,22 +54,18 @@ namespace BungPause
         
         public void Tick()
         {
-            _log.Debug("why doe smodding suck");
             if (_rightController.isValid)
             { 
-                _log.Debug($"{_rightController} was valid.");
                 if (_rightController.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out var triggerValue) && triggerValue && triggerValue != _lastButtonState)
                 {
                     switch (_paused)
                     { 
                         case false:
-                            _log.Debug($"case was {_paused}");
                             _paused = true;
                             _lastButtonState = triggerValue;
                             _pauseController?.Pause();
                             break;
                         case true:
-                            _log.Debug($"case was {_paused}");
                             _paused = false;
                             _pauseMenuManager?.Invoke("ContinueButtonPressed", 0f);
                             break;
@@ -81,7 +77,6 @@ namespace BungPause
             } else
             {
                 _rightController = GetInputDevice();
-                _log.Debug(_rightController.name);
             }
         }
 
