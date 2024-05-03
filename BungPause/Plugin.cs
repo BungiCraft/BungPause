@@ -9,8 +9,7 @@ namespace BungPause
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        public static IPALogger Logger;
-        private SiraLog _log;
+        private static IPALogger Logger;
         
         
         [Init]
